@@ -1,7 +1,8 @@
 # Price history
 
 Raccolta pubblica dei prezzi di mercato FUT.GG per EA FC 27, Console e PC.
-GitHub Actions scarica l'intero listino ogni 15 minuti, alle :07, :22, :37 e :52 di ogni ora UTC.
+GitHub Actions richiede la raccolta dell'intero listino ogni 15 minuti, alle :01, :16, :31 e :46 di ogni ora UTC.
+L'avvio effettivo dipende dalla coda del servizio: non è garantito al minuto esatto.
 Conserva le osservazioni delle ultime 24 ore, senza un PC acceso.
 
 ## Avvio
@@ -15,6 +16,15 @@ Conserva le osservazioni delle ultime 24 ore, senza un PC acceso.
 Non occorrono token personali, account EA, credenziali FUT.GG o dipendenze npm.
 Il workflow usa il `GITHUB_TOKEN` temporaneo di GitHub esclusivamente per pubblicare i dati.
 Usa runner standard `ubuntu-latest`, gratuiti nei repository pubblici secondo le condizioni GitHub.
+
+### Verifica della raccolta automatica
+
+Apri [le esecuzioni programmate](https://github.com/iamlucaconti/price-history/actions/workflows/collect.yml?query=event%3Aschedule).
+Deve comparire un'esecuzione `Collect prices · schedule · main` riuscita, con il passaggio
+`Publish only generated data` completato. Se l'elenco è vuoto, non è ancora stato
+registrato alcun avvio automatico: il solo aggiornamento del manifesto non lo dimostra.
+Gli avvii `push` seguono una modifica del codice; quelli `workflow_dispatch` sono manuali.
+Il riepilogo di ogni esecuzione riporta causa dell'avvio, cron UTC e orario effettivo.
 
 ## Dati pubblicati
 
