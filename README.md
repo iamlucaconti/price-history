@@ -1,7 +1,7 @@
 # Price history
 
 Raccolta pubblica dei prezzi di mercato FUT.GG per EA FC 27, Console e PC.
-GitHub Actions scarica l'intero listino ogni 5 minuti, alle :02, :07, :12 ... :57 di ogni ora UTC.
+GitHub Actions scarica l'intero listino ogni 15 minuti, alle :07, :22, :37 e :52 di ogni ora UTC.
 Conserva le osservazioni delle ultime 24 ore, senza un PC acceso.
 
 ## Avvio
@@ -51,8 +51,10 @@ e le carte obiettivo/non commerciabili non diventano prezzi di mercato.
 - Le date sono **date di osservazione del listino**, non vendite EA o aggiornamenti individuali
   delle carte. La fonte può conservare un prezzo invariato o aggiornarsi in ritardo.
 - La raccolta parte dall'attivazione: nessun recupero retroattivo delle 24 ore precedenti.
-- Fino a 289 osservazioni includono i due estremi delle 24 ore. Più esecuzioni nello stesso
-  intervallo di cinque minuti sostituiscono l'ultima osservazione di quell'intervallo.
+- Con cadenza regolare, fino a 97 osservazioni includono i due estremi delle 24 ore.
+  Le osservazioni precedenti raccolte ogni cinque minuti rimangono valide fino alla scadenza
+  della finestra di 24 ore. Più esecuzioni nello stesso quarto d'ora sostituiscono
+  l'ultima osservazione di quell'intervallo.
 - GitHub può ritardare o saltare esecuzioni. Errori di rete, blocchi FUT.GG o dati incoerenti
   fanno fallire il lavoro senza pubblicare osservazioni. I buchi restano reali.
 - Entrambe le piattaforme e i feed dinamici devono essere disponibili prima di pubblicare.
