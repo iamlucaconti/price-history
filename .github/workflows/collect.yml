@@ -1,0 +1,61 @@
+name: Collect price history
+
+on:
+  schedule:
+    - cron: '7,22,37,52 * * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['collect.mjs', 'test/**', 'package.json', '.github/workflows/collect.yml']
+
+permissions:
+  contents: write
+
+concurrency:
+  group: price-history
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Test collector
+        run: npm test
+      - name: Read previous observations
+        shell: bash
+        run: |
+          mkdir state
+          set +e
+          git ls-remote --exit-code --heads origin refs/heads/data > /dev/null
+          status=$?
+          set -e
+          if [ "$status" -eq 0 ]; then
+            git fetch --depth=1 origin refs/heads/data
+            git archive FETCH_HEAD | tar -x -C state
+          elif [ "$status" -ne 2 ]; then
+            echo "Cannot read previous data; refusing to reset the history."
+            exit "$status"
+          fi
+      - name: Download both platforms and retain 24 hours
+        run: npm run collect
+      - name: Publish only generated data
+        shell: bash
+        env:
+          REPOSITORY: ${{ github.repository }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cd public
+          git init -q --initial-branch=data
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- manifest.json times.json listino-console.json listino-pc.json history
+          git commit -q -m "Update rolling price history"
+          auth=$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)
+          git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $auth" push --force "https://github.com/$REPOSITORY.git" HEAD:refs/heads/data
+      - name: Summary
+        run: cat public/manifest.json >> "$GITHUB_STEP_SUMMARY"

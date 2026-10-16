@@ -1,0 +1,6 @@
+node_modules/
+public/
+state/
+.publish/
+*.tmp
+.env*
