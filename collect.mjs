@@ -2,7 +2,7 @@ import { mkdir, readFile, writeFile, rename } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-export const INTERVAL = 15 * 60000, WINDOW = 24 * 3600000, SHARDS = 32;
+export const INTERVAL = 5 * 60000, WINDOW = 24 * 3600000, SHARDS = 32;
 const platforms = { console: 'player-prices-ps5', pc: 'player-prices-pc' };
 const validId = id => Number.isSafeInteger(id) && id > 0;
 export const shardName = n => String(n).padStart(2, '0');
@@ -68,7 +68,7 @@ export async function download(game = '27', fetcher = fetch) {
 export function append(previous, prices, at, { game = '27', platform, shard } = {}) {
   if (!Number.isSafeInteger(at) || at <= 0 || !Object.hasOwn(platforms, platform) || !Number.isInteger(shard) || shard < 0 || shard >= SHARDS) throw Error('Invalid observation');
   if (previous && (previous.v !== 1 || previous.game !== game || previous.platform !== platform || previous.shard !== shard
-      || !Array.isArray(previous.times) || previous.times.length > 97 || typeof previous.prices !== 'object' || !previous.prices)) throw Error('Invalid saved history');
+      || !Array.isArray(previous.times) || previous.times.length > 289 || typeof previous.prices !== 'object' || !previous.prices)) throw Error('Invalid saved history');
   const times = previous?.times ?? [];
   if (times.some((time, i) => !Number.isSafeInteger(time) || time <= 0 || (i && time <= times[i - 1]) || time > at)) throw Error('Invalid saved timestamps');
   const bucket = Math.floor(at / INTERVAL);
@@ -121,7 +121,7 @@ export async function build({ output = 'public', previous = 'state', game = '27'
   }
   const times = documents.find(([file]) => file === 'times.json')[1];
   const manifest = { v: 1, game, source: 'FUT.GG', generatedAt: observedAt, sourcePublishedAt: downloaded.sourcePublishedAt,
-    retentionHours: 24, intervalMinutes: 15, shards: SHARDS, snapshots: true, times, counts };
+    retentionHours: 24, intervalMinutes: 5, shards: SHARDS, snapshots: true, times, counts };
   documents.push(['manifest.json', manifest]);
   // Validate everything before writing. The workflow publishes only successful builds.
   for (const [file, data] of documents) {

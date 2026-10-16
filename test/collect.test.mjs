@@ -22,15 +22,23 @@ test('Incomplete or shifted feeds fail instead of assigning prices to wrong card
   assert.throws(() => merge({ id0: 100, d: [5] }, { p: [100], s: [0] }, { p: [150] }));
   assert.throws(() => merge({ id0: 100, d: [] }, { p: [100] }, { p: [150] }));
 });
-test('Manual runs in the same quarter hour replace only that observation', () => {
+test('Manual runs in the same five-minute period replace only that observation', () => {
   let data = append(null, new Map([[card, 2000]]), now, options);
   data = append(data, new Map([[card, 2100]]), now + 60000, options);
   assert.deepEqual(data.times, [now + 60000]); assert.deepEqual(data.prices[card], [2100]);
 });
 test('24 hours retain a boundary point while pruning older observations', () => {
   let data = null;
-  for (let i = 0; i <= 110; i++) data = append(data, new Map([[card, 2000 + i]]), now + i * INTERVAL, options);
-  assert.equal(data.times.length, 97); assert.equal(data.times[0], now + 110 * INTERVAL - WINDOW);
+  for (let i = 0; i <= 310; i++) data = append(data, new Map([[card, 2000 + i]]), now + i * INTERVAL, options);
+  assert.equal(data.times.length, 289); assert.equal(data.times[0], now + 310 * INTERVAL - WINDOW);
+});
+
+test('Switching from fifteen-minute history preserves the existing observations', () => {
+  const previous = { v: 1, game: '27', platform: 'console', shard: 4,
+    times: [now - 30 * 60000, now - 15 * 60000, now], prices: { [card]: [1000, 1500, 2000] } };
+  const next = append(previous, new Map([[card, 2100]]), now + INTERVAL, options);
+  assert.deepEqual(next.times, [...previous.times, now + 5 * 60000]);
+  assert.deepEqual(next.prices[card], [1000, 1500, 2000, 2100]);
 });
 test('Missing, newly released and removed cards retain real gaps', () => {
   let data = append(null, new Map([[100, 2000]]), now, options);
@@ -57,6 +65,7 @@ test('Build round trip preserves history, publishes both platforms, and failed d
     const manifest = JSON.parse(await readFile(path.join(second, 'manifest.json')));
     assert.deepEqual(manifest.times, [now, now + INTERVAL]); assert.deepEqual(manifest.counts, { console: 2, pc: 2 });
     assert.equal(manifest.snapshots, true);
+    assert.equal(manifest.intervalMinutes, 5);
     const snapshot = JSON.parse(await readFile(path.join(second, 'snapshots', `${now}-console.json`)));
     assert.deepEqual([...decode(snapshot)], [[100, 2000], [102, 4000]]);
     const before = await readFile(path.join(second, 'manifest.json'), 'utf8');

@@ -2,7 +2,7 @@ name: Collect price history
 
 on:
   schedule:
-    - cron: '7,22,37,52 * * * *'
+    - cron: '2-57/5 * * * *'
   workflow_dispatch:
   push:
     branches: [main]
