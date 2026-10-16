@@ -13,7 +13,7 @@ Conserva le osservazioni delle ultime 24 ore, senza un PC acceso.
    Workflow permissions > Read and write permissions**.
 4. La prima esecuzione riuscita crea il ramo `data`. Dopo 24 ore si forma la finestra completa.
 
-Non occorrono token personali, account EA, credenziali FUT.GG o dipendenze npm.
+Con la pianificazione nativa non occorrono token personali, account EA, credenziali FUT.GG o dipendenze npm.
 Il workflow usa il `GITHUB_TOKEN` temporaneo di GitHub esclusivamente per pubblicare i dati.
 Usa runner standard `ubuntu-latest`, gratuiti nei repository pubblici secondo le condizioni GitHub.
 
@@ -23,8 +23,12 @@ Apri [le esecuzioni programmate](https://github.com/iamlucaconti/price-history/a
 Deve comparire un'esecuzione `Collect prices · schedule · main` riuscita, con il passaggio
 `Publish only generated data` completato. Se l'elenco è vuoto, non è ancora stato
 registrato alcun avvio automatico: il solo aggiornamento del manifesto non lo dimostra.
-Gli avvii `push` seguono una modifica del codice; quelli `workflow_dispatch` sono manuali.
+Gli avvii `push` seguono una modifica del codice; quelli `workflow_dispatch` arrivano
+dal pulsante manuale o da una chiamata API, anche se effettuata da un timer esterno.
 Il riepilogo di ogni esecuzione riporta causa dell'avvio, cron UTC e orario effettivo.
+
+Se GitHub non genera gli eventi programmati, è disponibile la
+[configurazione di un timer esterno gratuito](EXTERNAL-SCHEDULER.md).
 
 ## Dati pubblicati
 
