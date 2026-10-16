@@ -1,7 +1,8 @@
 # Price history
 
 Raccolta pubblica dei prezzi di mercato FUT.GG per EA FC 27, Console e PC.
-GitHub Actions richiede la raccolta dell'intero listino ogni 15 minuti, alle :01, :16, :31 e :46 di ogni ora UTC.
+Il raccoglitore conserva un'osservazione ogni 5 minuti. Il timer esterno cron-job.org
+può avviarlo ogni 5 minuti tramite API; anche il cron nativo di GitHub è impostato a 5 minuti.
 L'avvio effettivo dipende dalla coda del servizio: non è garantito al minuto esatto.
 Conserva le osservazioni delle ultime 24 ore, senza un PC acceso.
 
@@ -65,9 +66,9 @@ e le carte obiettivo/non commerciabili non diventano prezzi di mercato.
 - Le date sono **date di osservazione del listino**, non vendite EA o aggiornamenti individuali
   delle carte. La fonte può conservare un prezzo invariato o aggiornarsi in ritardo.
 - La raccolta parte dall'attivazione: nessun recupero retroattivo delle 24 ore precedenti.
-- Con cadenza regolare, fino a 97 osservazioni includono i due estremi delle 24 ore.
-  Le osservazioni precedenti raccolte ogni cinque minuti rimangono valide fino alla scadenza
-  della finestra di 24 ore. Più esecuzioni nello stesso quarto d'ora sostituiscono
+- Con cadenza regolare, fino a 289 osservazioni includono i due estremi delle 24 ore.
+  Le osservazioni precedenti raccolte ogni quindici minuti rimangono valide fino alla scadenza
+  della finestra di 24 ore. Più esecuzioni nello stesso intervallo di cinque minuti sostituiscono
   l'ultima osservazione di quell'intervallo.
 - GitHub può ritardare o saltare esecuzioni. Errori di rete, blocchi FUT.GG o dati incoerenti
   fanno fallire il lavoro senza pubblicare osservazioni. I buchi restano reali.

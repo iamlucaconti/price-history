@@ -1,4 +1,4 @@
-# Avvio ogni 15 minuti con cron-job.org
+# Avvio ogni 5 minuti con cron-job.org
 
 Il raccoglitore supporta già l'avvio tramite API (`workflow_dispatch`). Un timer esterno
 può usare questa funzione quando la pianificazione nativa di GitHub non parte.
@@ -6,8 +6,8 @@ Il download e la pubblicazione rimangono su GitHub Actions; il PC può restare s
 L'avvio tramite API evita lo scheduler cron di GitHub, ma resta soggetto alla
 disponibilità e ai tempi dei runner Actions e della fonte dei prezzi.
 
-La configurazione qui sotto è pronta da inserire, ma **non è attiva**: richiede un
-account personale cron-job.org e un token GitHub dedicato.
+La configurazione qui sotto richiede un account personale cron-job.org e un token
+GitHub dedicato. La sua attivazione va verificata nella cronologia del servizio.
 
 ## 1. Account e token
 
@@ -31,11 +31,11 @@ il workflow pubblica i dati con il proprio `GITHUB_TOKEN` temporaneo.
 
 Nella console cron-job.org crea un cronjob con:
 
-- Titolo: `Price history - ogni 15 minuti`.
+- Titolo: `Price history - ogni 5 minuti`.
 - URL: `https://api.github.com/repos/iamlucaconti/price-history/actions/workflows/collect.yml/dispatches`.
 - Metodo HTTP: **POST**.
 - Fuso orario: **UTC**.
-- Orari personalizzati: minuti **1, 16, 31, 46**, tutte le ore e tutti i giorni.
+- Frequenza: **ogni 5 minuti** (minuti **0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55**), tutte le ore e tutti i giorni.
 - Corpo della richiesta:
 
 ```json
@@ -63,7 +63,7 @@ Riferimento: [API GitHub per avviare un workflow](https://docs.github.com/en/res
    deve apparire `Collect prices · workflow_dispatch · main` e completarsi con successo,
    incluso `Publish only generated data`.
 3. Verifica che `generatedAt` nel [manifesto](https://raw.githubusercontent.com/iamlucaconti/price-history/data/manifest.json)
-   sia aggiornato. Più avvii nello stesso quarto d'ora sostituiscono il punto di quell'intervallo.
+   sia aggiornato. Più avvii nello stesso intervallo di cinque minuti sostituiscono il punto di quell'intervallo.
 4. Attendi uno degli orari configurati e controlla sia la cronologia automatica su
    cron-job.org sia il corrispondente workflow riuscito. Un test manuale riuscito,
    da solo, non verifica la pianificazione automatica.
