@@ -25,6 +25,9 @@ Il ramo `main` contiene solo raccoglitore, test, istruzioni e workflow. Il ramo 
 - `listino-console.json`, `listino-pc.json`: ultimo listino compatto `{v:2,id0,d,p,n}`.
 - `history/console/00.json` ... `31.json`, con gli stessi gruppi per `history/pc/`.
 - `times.json`: indice degli orari di acquisizione.
+- `snapshots/<timestamp>-console.json` e `snapshots/<timestamp>-pc.json`: listini
+  compatti di ogni osservazione, per calcolare i movimenti dell'intero mercato
+  con un solo download. Il manifesto segnala questa disponibilità con `snapshots: true`.
 
 Indirizzo pubblico del manifesto:
 

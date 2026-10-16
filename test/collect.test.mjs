@@ -56,6 +56,9 @@ test('Build round trip preserves history, publishes both platforms, and failed d
     await build({ output: second, previous: first, at: now + INTERVAL, fetcher: fixture() });
     const manifest = JSON.parse(await readFile(path.join(second, 'manifest.json')));
     assert.deepEqual(manifest.times, [now, now + INTERVAL]); assert.deepEqual(manifest.counts, { console: 2, pc: 2 });
+    assert.equal(manifest.snapshots, true);
+    const snapshot = JSON.parse(await readFile(path.join(second, 'snapshots', `${now}-console.json`)));
+    assert.deepEqual([...decode(snapshot)], [[100, 2000], [102, 4000]]);
     const before = await readFile(path.join(second, 'manifest.json'), 'utf8');
     await assert.rejects(build({ output: second, previous: first, at: now + INTERVAL, fetcher: fixture({ failPc: true }) }), /503/);
     assert.equal(await readFile(path.join(second, 'manifest.json'), 'utf8'), before);

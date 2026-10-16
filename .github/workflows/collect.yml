@@ -53,7 +53,7 @@ jobs:
           git init -q --initial-branch=data
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -- manifest.json times.json listino-console.json listino-pc.json history
+          git add -- manifest.json times.json listino-console.json listino-pc.json history snapshots
           git commit -q -m "Update rolling price history"
           auth=$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)
           git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $auth" push --force "https://github.com/$REPOSITORY.git" HEAD:refs/heads/data

@@ -97,22 +97,31 @@ export async function build({ output = 'public', previous = 'state', game = '27'
   for (const platform of Object.keys(platforms)) {
     const groups = Array.from({ length: SHARDS }, () => new Map());
     for (const [id, price] of decode(downloaded.lists[platform])) groups[id % SHARDS].set(id, price);
-    let observations;
+    let observations; const histories = [];
     for (let shard = 0; shard < SHARDS; shard++) {
       const file = `history/${platform}/${shardName(shard)}.json`;
       const saved = prior ? JSON.parse(await readFile(path.join(previous, file), 'utf8')) : null;
       if (prior && JSON.stringify(saved.times) !== JSON.stringify(prior.times)) throw Error('Saved shards have inconsistent timestamps');
       const data = append(saved, groups[shard], observedAt, { game, platform, shard });
       observations = data.times;
+      histories.push(data);
       documents.push([file, data]);
     }
     counts[platform] = [...decode(downloaded.lists[platform]).values()].filter(price => price !== null).length;
     documents.push([`listino-${platform}.json`, downloaded.lists[platform]]);
+    // One compact market snapshot per observation enables market-wide comparisons
+    // with a single download instead of fetching all card-history shards.
+    const rows = histories.flatMap(data => Object.entries(data.prices).map(([id, series]) => [Number(id), series])).sort((a, b) => a[0] - b[0]);
+    if (rows.length) {
+      const d = rows.slice(1).map(([id], i) => id - rows[i][0]);
+      for (let i = 0; i < observations.length; i++) documents.push([`snapshots/${observations[i]}-${platform}.json`,
+        { v: 2, id0: rows[0][0], d, p: rows.map(([, series]) => series[i] ?? 0), n: [] }]);
+    }
     if (platform === 'console') documents.push(['times.json', observations]);
   }
   const times = documents.find(([file]) => file === 'times.json')[1];
   const manifest = { v: 1, game, source: 'FUT.GG', generatedAt: observedAt, sourcePublishedAt: downloaded.sourcePublishedAt,
-    retentionHours: 24, intervalMinutes: 15, shards: SHARDS, times, counts };
+    retentionHours: 24, intervalMinutes: 15, shards: SHARDS, snapshots: true, times, counts };
   documents.push(['manifest.json', manifest]);
   // Validate everything before writing. The workflow publishes only successful builds.
   for (const [file, data] of documents) {
